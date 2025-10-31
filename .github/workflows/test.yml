@@ -381,8 +381,8 @@ jobs:
           pnpm run preview:vikunja &
           pnpm run preview &
 
-          # Wait for services to be ready
-          pnpx wait-on http://127.0.0.1:4173 http://127.0.0.1:3456/api/v1/info --timeout 60000
+          # Wait for services to be ready (using GET method)
+          pnpx wait-on http-get://127.0.0.1:4173 http-get://127.0.0.1:3456/api/v1/info --timeout 60000
 
           pnpm run test:playwright
         env:
