@@ -106,6 +106,7 @@
   "devDependencies": {
     "@faker-js/faker": "9.9.0",
     "@histoire/plugin-screenshot": "1.0.0-alpha.4",
+    "@playwright/test": "1.56.1",
     "@histoire/plugin-vue": "1.0.0-alpha.4",
     "@tsconfig/node22": "22.0.2",
     "@types/codemirror": "5.60.17",
