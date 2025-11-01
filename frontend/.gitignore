@@ -41,3 +41,4 @@ cypress/videos
 
 # histoire
 .histoire
+frontend/playwright-report/
