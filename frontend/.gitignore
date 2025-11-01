@@ -43,3 +43,5 @@ cypress/videos
 .histoire
 frontend/playwright-report/
 frontend/test-results/
+playwright-report/
+test-results/
