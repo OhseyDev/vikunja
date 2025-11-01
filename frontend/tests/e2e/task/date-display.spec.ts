@@ -5,7 +5,7 @@ import {TaskFactory} from '../../factories/task'
 import {login} from '../../support/authenticateUser'
 import {DATE_DISPLAY} from '../../../src/constants/dateDisplay'
 import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
+import relativeTime from 'dayjs/plugin/relativeTime.js'
 
 dayjs.extend(relativeTime)
 
