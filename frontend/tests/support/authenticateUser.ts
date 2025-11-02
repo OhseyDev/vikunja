@@ -10,7 +10,7 @@ export async function login(page: Page, apiContext: APIRequestContext, user?: an
 	}
 
 	// Login via API
-	const response = await apiContext.post('/login', {
+	const response = await apiContext.post('login', {
 		data: {
 			username: user.username,
 			password: '1234',

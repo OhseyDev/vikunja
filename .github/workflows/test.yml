@@ -386,7 +386,6 @@ jobs:
 
           pnpm run test:e2e
         env:
-          API_URL: http://127.0.0.1:3456/api/v1
           TEST_SECRET: averyLongSecretToSe33dtheDB
           VIKUNJA_SERVICE_TESTINGTOKEN: averyLongSecretToSe33dtheDB
           VIKUNJA_LOG_LEVEL: DEBUG

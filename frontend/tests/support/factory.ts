@@ -75,7 +75,7 @@ export class Factory {
 		}
 
 		const response = await this.request.patch(
-			`/test/${table}?truncate=${truncate ? 'true' : 'false'}`,
+			`test/${table}?truncate=${truncate ? 'true' : 'false'}`,
 			{
 				data,
 			},

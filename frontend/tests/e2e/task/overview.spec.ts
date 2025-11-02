@@ -30,7 +30,7 @@ function seedTasks(apiContext: APIRequestContext, numberOfTasks = 50, startDueDa
 			updated: now.toISOString(),
 		})
 	}
-	seed(apiContext, TaskFactory.table, tasks)
+	TaskFactory.seed(TaskFactory.table, tasks)
 	return {tasks, project}
 }
 
