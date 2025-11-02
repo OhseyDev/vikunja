@@ -35,9 +35,8 @@ test.describe('Subtask duplicate handling', () => {
 		subtask = TaskFactory.create(1, {id: 12, title: 'Shared subtask', project_id: projectA.id}, false)[0]
 
 		const token = await page.evaluate(() => localStorage.getItem('token'))
-		const apiUrl = process.env.API_URL || 'http://localhost:3456/api/v1'
 
-		await apiContext.put(`${apiUrl}/tasks/${parentA.id}/relations`, {
+		await apiContext.put(`tasks/${parentA.id}/relations`, {
 			headers: {
 				'Authorization': `Bearer ${token}`,
 			},
@@ -47,7 +46,7 @@ test.describe('Subtask duplicate handling', () => {
 			},
 		})
 
-		await apiContext.put(`${apiUrl}/tasks/${parentB.id}/relations`, {
+		await apiContext.put(`tasks/${parentB.id}/relations`, {
 			headers: {
 				'Authorization': `Bearer ${token}`,
 			},

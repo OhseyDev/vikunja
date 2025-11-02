@@ -13,8 +13,7 @@ test.describe('Task comment pagination', () => {
 	})
 
 	test('shows pagination when more comments than configured page size', async ({authenticatedPage: page, apiContext}) => {
-		const apiUrl = process.env.API_URL || 'http://localhost:3456/api/v1'
-		const response = await apiContext.get(`${apiUrl}/info`)
+		const response = await apiContext.get('info')
 		const body = await response.json()
 		const pageSize = body.max_items_per_page
 		TaskCommentFactory.create(pageSize + 10)
@@ -23,8 +22,7 @@ test.describe('Task comment pagination', () => {
 	})
 
 	test('hides pagination when comments equal or fewer than configured page size', async ({authenticatedPage: page, apiContext}) => {
-		const apiUrl = process.env.API_URL || 'http://localhost:3456/api/v1'
-		const response = await apiContext.get(`${apiUrl}/info`)
+		const response = await apiContext.get('info')
 		const body = await response.json()
 		const pageSize = body.max_items_per_page
 		TaskCommentFactory.create(Math.max(1, pageSize - 10))

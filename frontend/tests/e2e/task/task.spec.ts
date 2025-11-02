@@ -871,9 +871,8 @@ test.describe('Task', () => {
 			const fileBuffer = readFileSync(filePath)
 
 			const token = await page.evaluate(() => localStorage.getItem('token'))
-			const apiUrl = process.env.API_URL || 'http://localhost:3456/api/v1'
 
-			const response = await apiContext.put(`${apiUrl}/tasks/${tasks[0].id}/attachments`, {
+			const response = await apiContext.put(`tasks/${tasks[0].id}/attachments`, {
 				multipart: {
 					files: {
 						name: 'image.jpg',
