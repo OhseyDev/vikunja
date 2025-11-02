@@ -4,10 +4,13 @@ inputs:
     url: github:cachix/devenv-nixpkgs/rolling
   nixpkgs-unstable:
     url: github:NixOS/nixpkgs/nixos-unstable
+  # Currently pinned to: playwright@1.54.1
+  # See https://search.nixos.org/packages?channel=unstable&from=0&size=50&sort=relevance&type=packages&query=playwright
+  nixpkgs-playwright:
+    url: github:NixOS/nixpkgs/ae1aa6751ce85669124f7ad4fd5fd67cb91b52e4
 
 # If you're using non-OSS software, you can set allowUnfree to true.
 allowUnfree: true
-
 # If you're willing to use a package that's vulnerable
 # permittedInsecurePackages:
 #  - "openssl-1.1.1w"

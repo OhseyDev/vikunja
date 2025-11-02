@@ -346,7 +346,7 @@ jobs:
           name: frontend_dist
           path: ./frontend/dist
 
-  test-frontend-playwright:
+  test-frontend-e2e:
     runs-on: ubuntu-latest
     needs:
       - api-build
@@ -367,7 +367,7 @@ jobs:
           name: vikunja_bin
       - uses: ./.github/actions/setup-frontend
         with:
-          install-e2e-binaries: false  # Playwright browsers already in container
+          install-e2e-binaries: false # Playwright browsers already in container
       - name: Download Frontend
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
         with:
@@ -384,7 +384,7 @@ jobs:
           # Wait for services to be ready (using GET method)
           pnpx wait-on http-get://127.0.0.1:4173 http-get://127.0.0.1:3456/api/v1/info --timeout 60000
 
-          pnpm run test:playwright
+          pnpm run test:e2e
         env:
           API_URL: http://127.0.0.1:3456/api/v1
           TEST_SECRET: averyLongSecretToSe33dtheDB
