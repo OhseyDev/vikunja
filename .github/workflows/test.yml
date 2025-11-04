@@ -408,13 +408,13 @@ jobs:
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         if: always()
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.shard }}
           path: frontend/playwright-report/
           retention-days: 30
       - name: Upload Test Results
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         if: always()
         with:
-          name: playwright-test-results
+          name: playwright-test-results-${{ matrix.shard }}
           path: frontend/test-results/
           retention-days: 30
