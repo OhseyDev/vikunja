@@ -13,7 +13,7 @@ async function openAndSetFilters(page) {
 test.describe('Filter Persistence Across Views', () => {
 	test.beforeEach(async ({authenticatedPage: page}) => {
 		createProjects()
-		TaskFactory.create(5, {
+		await TaskFactory.create(5, {
 			id: '{increment}',
 			project_id: 1,
 			title: 'Test Task {increment}',

@@ -21,10 +21,10 @@ test.describe('Team', () => {
 	})
 
 	test('Shows all teams', async ({authenticatedPage: page}) => {
-		TeamMemberFactory.create(10, {
+		await TeamMemberFactory.create(10, {
 			team_id: '{increment}',
 		})
-		const teams = TeamFactory.create(10, {
+		const teams = await TeamFactory.create(10, {
 			id: '{increment}',
 		})
 
@@ -37,11 +37,11 @@ test.describe('Team', () => {
 	})
 
 	test('Allows an admin to edit the team', async ({authenticatedPage: page}) => {
-		TeamMemberFactory.create(1, {
+		await TeamMemberFactory.create(1, {
 			team_id: 1,
 			admin: true,
 		})
-		const teams = TeamFactory.create(1, {
+		const teams = await TeamFactory.create(1, {
 			id: 1,
 		})
 
@@ -55,11 +55,11 @@ test.describe('Team', () => {
 	})
 
 	test('Does not allow a normal user to edit the team', async ({authenticatedPage: page}) => {
-		TeamMemberFactory.create(1, {
+		await TeamMemberFactory.create(1, {
 			team_id: 1,
 			admin: false,
 		})
-		const teams = TeamFactory.create(1, {
+		const teams = await TeamFactory.create(1, {
 			id: 1,
 		})
 
@@ -69,14 +69,14 @@ test.describe('Team', () => {
 	})
 
 	test('Allows an admin to add members to the team', async ({authenticatedPage: page}) => {
-		TeamMemberFactory.create(1, {
+		await TeamMemberFactory.create(1, {
 			team_id: 1,
 			admin: true,
 		})
-		TeamFactory.create(1, {
+		await TeamFactory.create(1, {
 			id: 1,
 		})
-		const users = UserFactory.create(5)
+		const users = await UserFactory.create(5)
 
 		await page.goto('/teams/1/edit')
 		await page.locator('.card').filter({hasText: 'Team Members'}).locator('.card-content .multiselect .input-wrapper input').fill(users[1].username)

@@ -6,9 +6,9 @@ import {createDefaultViews} from '../project/prepareProjects'
 
 test.describe('Task comment pagination', () => {
 	test.beforeEach(async ({authenticatedPage: page}) => {
-		ProjectFactory.create(1)
+		await ProjectFactory.create(1)
 		createDefaultViews(1)
-		TaskFactory.create(1, {id: 1})
+		await TaskFactory.create(1, {id: 1})
 		TaskCommentFactory.truncate()
 	})
 
@@ -16,7 +16,7 @@ test.describe('Task comment pagination', () => {
 		const response = await apiContext.get('info')
 		const body = await response.json()
 		const pageSize = body.max_items_per_page
-		TaskCommentFactory.create(pageSize + 10)
+		await TaskCommentFactory.create(pageSize + 10)
 		await page.goto('/tasks/1')
 		await expect(page.locator('.task-view .comments nav.pagination')).toBeVisible()
 	})
@@ -25,7 +25,7 @@ test.describe('Task comment pagination', () => {
 		const response = await apiContext.get('info')
 		const body = await response.json()
 		const pageSize = body.max_items_per_page
-		TaskCommentFactory.create(Math.max(1, pageSize - 10))
+		await TaskCommentFactory.create(Math.max(1, pageSize - 10))
 		await page.goto('/tasks/1')
 		await expect(page.locator('.task-view .comments nav.pagination')).not.toBeVisible()
 	})

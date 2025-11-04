@@ -5,7 +5,7 @@ import {UserFactory} from '../../factories/user'
 
 test.describe('Registration', () => {
 	test.beforeEach(async ({page}) => {
-		UserFactory.create(1, {
+		await UserFactory.create(1, {
 			username: 'test',
 		})
 		await page.goto('/')

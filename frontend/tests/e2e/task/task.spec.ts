@@ -77,9 +77,9 @@ test.describe('Task', () => {
 	let buckets: Bucket[]
 
 	test.beforeEach(async ({authenticatedPage: page}) => {
-		projects = ProjectFactory.create(1) as Project[]
+		projects = await ProjectFactory.create(1) as Project[]
 		const views = createDefaultViews(projects[0].id)
-		buckets = BucketFactory.create(1, {
+		buckets = await BucketFactory.create(1, {
 			project_view_id: views[3].id,
 		}) as Bucket[]
 		TaskFactory.truncate()
@@ -94,7 +94,7 @@ test.describe('Task', () => {
 	})
 
 	test('Inserts new tasks at the top of the project', async ({authenticatedPage: page}) => {
-		TaskFactory.create(1)
+		await TaskFactory.create(1)
 
 		await page.goto('/projects/1/1')
 		await expect(page.locator('.project-is-empty-notice')).not.toBeVisible()
@@ -106,7 +106,7 @@ test.describe('Task', () => {
 	})
 
 	test('Marks a task as done', async ({authenticatedPage: page}) => {
-		TaskFactory.create(1)
+		await TaskFactory.create(1)
 
 		await page.goto('/projects/1/1')
 		await page.locator('.tasks .task .fancy-checkbox').first().click()
@@ -114,7 +114,7 @@ test.describe('Task', () => {
 	})
 
 	test('Can add a task to favorites', async ({authenticatedPage: page}) => {
-		TaskFactory.create(1)
+		await TaskFactory.create(1)
 
 		await page.goto('/projects/1/1')
 		await page.locator('.tasks .task .favorite').first().click()
@@ -125,7 +125,7 @@ test.describe('Task', () => {
 		const loadTasksPromise = page.waitForResponse(response =>
 			response.url().includes('/projects/1/views/') && response.url().includes('/tasks'),
 		)
-		TaskFactory.create(1, {
+		await TaskFactory.create(1, {
 			description: 'Lorem Ipsum',
 		})
 
@@ -139,7 +139,7 @@ test.describe('Task', () => {
 		const loadTasksPromise = page.waitForResponse(response =>
 			response.url().includes('/projects/1/views/') && response.url().includes('/tasks'),
 		)
-		TaskFactory.create(1, {
+		await TaskFactory.create(1, {
 			description: '',
 		})
 
@@ -153,7 +153,7 @@ test.describe('Task', () => {
 		const loadTasksPromise = page.waitForResponse(response =>
 			response.url().includes('/projects/1/views/') && response.url().includes('/tasks'),
 		)
-		TaskFactory.create(1, {
+		await TaskFactory.create(1, {
 			description: '<p></p>',
 		})
 
@@ -171,7 +171,7 @@ test.describe('Task', () => {
 		})
 
 		test('provides back navigation to the project in the list view', async ({authenticatedPage: page}) => {
-			const tasks = TaskFactory.create(1)
+			const tasks = await TaskFactory.create(1)
 			const loadTasksPromise = page.waitForResponse(response =>
 				response.url().includes('/projects/1/views/') && response.url().includes('/tasks'),
 			)
@@ -184,7 +184,7 @@ test.describe('Task', () => {
 		})
 
 		test('provides back navigation to the project in the table view', async ({authenticatedPage: page}) => {
-			const tasks = TaskFactory.create(1)
+			const tasks = await TaskFactory.create(1)
 			const loadTasksPromise = page.waitForResponse(response =>
 				response.url().includes('/projects/1/views/') && response.url().includes('/tasks'),
 			)
@@ -199,7 +199,7 @@ test.describe('Task', () => {
 		test('provides back navigation to the project in the kanban view on mobile', async ({authenticatedPage: page}) => {
 			await page.setViewportSize({width: 375, height: 667}) // iphone-8
 
-			const tasks = TaskFactory.create(1)
+			const tasks = await TaskFactory.create(1)
 			const loadTasksPromise = page.waitForResponse(response =>
 				response.url().includes('/projects/1/views/') && response.url().includes('/tasks'),
 			)
@@ -214,7 +214,7 @@ test.describe('Task', () => {
 		test('does not provide back navigation to the project in the kanban view on desktop', async ({authenticatedPage: page}) => {
 			await page.setViewportSize({width: 1440, height: 900}) // macbook-15
 
-			const tasks = TaskFactory.create(1)
+			const tasks = await TaskFactory.create(1)
 			const loadTasksPromise = page.waitForResponse(response =>
 				response.url().includes('/projects/1/views/') && response.url().includes('/tasks'),
 			)
@@ -230,7 +230,7 @@ test.describe('Task', () => {
 		})
 
 		test('Shows all task details', async ({authenticatedPage: page}) => {
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				index: 1,
 				description: 'Lorem ipsum dolor sit amet.',
@@ -245,7 +245,7 @@ test.describe('Task', () => {
 		})
 
 		test('Shows a done label for done tasks', async ({authenticatedPage: page}) => {
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				index: 1,
 				done: true,
@@ -261,7 +261,7 @@ test.describe('Task', () => {
 		})
 
 		test('Can mark a task as done', async ({authenticatedPage: page}) => {
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				done: false,
 			})
@@ -276,11 +276,11 @@ test.describe('Task', () => {
 		})
 
 		test('Shows a task identifier since the project has one', async ({authenticatedPage: page}) => {
-			const projects = ProjectFactory.create(1, {
+			const projects = await ProjectFactory.create(1, {
 				id: 1,
 				identifier: 'TEST',
 			})
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				project_id: projects[0].id,
 				index: 1,
@@ -292,7 +292,7 @@ test.describe('Task', () => {
 		})
 
 		test('Can edit the description', async ({authenticatedPage: page}) => {
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				description: 'Lorem ipsum dolor sit amet.',
 			})
@@ -306,7 +306,7 @@ test.describe('Task', () => {
 		})
 
 		test('autosaves the description when leaving the task view', async ({authenticatedPage: page}) => {
-			TaskFactory.create(1, {
+			await TaskFactory.create(1, {
 				id: 1,
 				project_id: projects[0].id,
 				description: 'Old Description',
@@ -324,7 +324,7 @@ test.describe('Task', () => {
 		})
 
 		test('Shows an empty editor when the description of a task is empty', async ({authenticatedPage: page}) => {
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				description: '',
 			})
@@ -335,7 +335,7 @@ test.describe('Task', () => {
 		})
 
 		test('Shows a preview editor when the description of a task is not empty', async ({authenticatedPage: page}) => {
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				description: 'Lorem Ipsum dolor sit amet',
 			})
@@ -346,7 +346,7 @@ test.describe('Task', () => {
 		})
 
 		test('Shows a preview editor when the description of a task contains html', async ({authenticatedPage: page}) => {
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				description: '<p>Lorem Ipsum dolor sit amet</p>',
 			})
@@ -357,7 +357,7 @@ test.describe('Task', () => {
 		})
 
 		test('Can add a new comment', async ({authenticatedPage: page}) => {
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 			})
 			await page.goto(`/tasks/${tasks[0].id}`)
@@ -371,12 +371,12 @@ test.describe('Task', () => {
 		})
 
 		test('Can move a task to another project', async ({authenticatedPage: page}) => {
-			const projects = ProjectFactory.create(2)
+			const projects = await ProjectFactory.create(2)
 			const views = createDefaultViews(projects[0].id)
-			BucketFactory.create(2, {
+			await BucketFactory.create(2, {
 				project_view_id: views[3].id,
 			})
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				project_id: projects[0].id,
 			})
@@ -393,7 +393,7 @@ test.describe('Task', () => {
 		})
 
 		test('Can delete a task', async ({authenticatedPage: page}) => {
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				project_id: 1,
 			})
@@ -409,12 +409,12 @@ test.describe('Task', () => {
 		})
 
 		test('Can add an assignee to a task', async ({authenticatedPage: page}) => {
-			const users = UserFactory.create(5)
-			const tasks = TaskFactory.create(1, {
+			const users = await UserFactory.create(5)
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				project_id: 1,
 			})
-			UserProjectFactory.create(5, {
+			await UserProjectFactory.create(5, {
 				project_id: 1,
 				user_id: '{increment}',
 			})
@@ -431,16 +431,16 @@ test.describe('Task', () => {
 		})
 
 		test('Can remove an assignee from a task', async ({authenticatedPage: page}) => {
-			const users = UserFactory.create(2)
-			const tasks = TaskFactory.create(1, {
+			const users = await UserFactory.create(2)
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				project_id: 1,
 			})
-			UserProjectFactory.create(5, {
+			await UserProjectFactory.create(5, {
 				project_id: 1,
 				user_id: '{increment}',
 			})
-			TaskAssigneeFactory.create(1, {
+			await TaskAssigneeFactory.create(1, {
 				task_id: tasks[0].id,
 				user_id: users[1].id,
 			})
@@ -454,7 +454,7 @@ test.describe('Task', () => {
 		})
 
 		test('Can add a new label to a task', async ({authenticatedPage: page}) => {
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				project_id: 1,
 			})
@@ -474,11 +474,11 @@ test.describe('Task', () => {
 		})
 
 		test('Can add an existing label to a task', async ({authenticatedPage: page}) => {
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				project_id: 1,
 			})
-			const labels = LabelFactory.create(1)
+			const labels = await LabelFactory.create(1)
 			LabelTaskFactory.truncate()
 
 			await page.goto(`/tasks/${tasks[0].id}`)
@@ -487,13 +487,13 @@ test.describe('Task', () => {
 		})
 
 		test('Can add a label to a task and it shows up on the kanban board afterwards', async ({authenticatedPage: page}) => {
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				project_id: projects[0].id,
 			})
-			const labels = LabelFactory.create(1)
+			const labels = await LabelFactory.create(1)
 			LabelTaskFactory.truncate()
-			TaskBucketFactory.create(1, {
+			await TaskBucketFactory.create(1, {
 				task_id: tasks[0].id,
 				bucket_id: buckets[0].id,
 				project_view_id: buckets[0].project_view_id,
@@ -511,12 +511,12 @@ test.describe('Task', () => {
 		})
 
 		test('Can remove a label from a task', async ({authenticatedPage: page}) => {
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				project_id: 1,
 			})
-			const labels = LabelFactory.create(1)
-			LabelTaskFactory.create(1, {
+			const labels = await LabelFactory.create(1)
+			await LabelTaskFactory.create(1, {
 				task_id: tasks[0].id,
 				label_id: labels[0].id,
 			})
@@ -532,7 +532,7 @@ test.describe('Task', () => {
 		})
 
 		test('Can set a due date for a task', async ({authenticatedPage: page}) => {
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				done: false,
 			})
@@ -548,7 +548,7 @@ test.describe('Task', () => {
 		})
 
 		test('Can set a due date to a specific date for a task', async ({authenticatedPage: page}) => {
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				done: false,
 			})
@@ -574,7 +574,7 @@ test.describe('Task', () => {
 			dueDate.setMinutes(0)
 			dueDate.setSeconds(0)
 			dueDate.setDate(1)
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				done: false,
 				due_date: dueDate.toISOString(),
@@ -599,7 +599,7 @@ test.describe('Task', () => {
 
 		test('Can paste an image into the description editor which uploads it as an attachment', async ({authenticatedPage: page}) => {
 			TaskAttachmentFactory.truncate()
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 			}) as Task[]
 			await page.goto(`/tasks/${tasks[0].id}`)
@@ -620,7 +620,7 @@ test.describe('Task', () => {
 
 		test('Can set a reminder', async ({authenticatedPage: page}) => {
 			TaskReminderFactory.truncate()
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				done: false,
 			})
@@ -636,7 +636,7 @@ test.describe('Task', () => {
 
 		test('Allows to set a relative reminder when the task already has a due date', async ({authenticatedPage: page}) => {
 			TaskReminderFactory.truncate()
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				done: false,
 				due_date: (new Date()).toISOString(),
@@ -655,7 +655,7 @@ test.describe('Task', () => {
 
 		test('Allows to set a relative reminder when the task already has a start date', async ({authenticatedPage: page}) => {
 			TaskReminderFactory.truncate()
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				done: false,
 				start_date: (new Date()).toISOString(),
@@ -674,7 +674,7 @@ test.describe('Task', () => {
 
 		test('Allows to set a custom relative reminder when the task already has a due date', async ({authenticatedPage: page}) => {
 			TaskReminderFactory.truncate()
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				done: false,
 				due_date: (new Date()).toISOString(),
@@ -695,7 +695,7 @@ test.describe('Task', () => {
 
 		test('Allows to set a fixed reminder when the task already has a due date', async ({authenticatedPage: page}) => {
 			TaskReminderFactory.truncate()
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				done: false,
 				due_date: (new Date()).toISOString(),
@@ -713,7 +713,7 @@ test.describe('Task', () => {
 		})
 
 		test('Can set a priority for a task', async ({authenticatedPage: page}) => {
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 			})
 			await page.goto(`/tasks/${tasks[0].id}`)
@@ -726,7 +726,7 @@ test.describe('Task', () => {
 		})
 
 		test('Can set the progress for a task', async ({authenticatedPage: page}) => {
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 			})
 			await page.goto(`/tasks/${tasks[0].id}`)
@@ -743,7 +743,7 @@ test.describe('Task', () => {
 
 		test('Can add an attachment to a task', async ({authenticatedPage: page}) => {
 			TaskAttachmentFactory.truncate()
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 			})
 			await page.goto(`/tasks/${tasks[0].id}`)
@@ -753,13 +753,13 @@ test.describe('Task', () => {
 
 		test('Can add an attachment to a task and see it appearing on kanban', async ({authenticatedPage: page}) => {
 			TaskAttachmentFactory.truncate()
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				project_id: projects[0].id,
 			})
-			const labels = LabelFactory.create(1)
+			const labels = await LabelFactory.create(1)
 			LabelTaskFactory.truncate()
-			TaskBucketFactory.create(1, {
+			await TaskBucketFactory.create(1, {
 				task_id: tasks[0].id,
 				bucket_id: buckets[0].id,
 				project_view_id: buckets[0].project_view_id,
@@ -777,7 +777,7 @@ test.describe('Task', () => {
 		})
 
 		test('Can check items off a checklist', async ({authenticatedPage: page}) => {
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				description: `
 <ul data-type="taskList">
@@ -810,7 +810,7 @@ test.describe('Task', () => {
 		})
 
 		test('Persists checked checklist items after reload', async ({authenticatedPage: page}) => {
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				description: `
 <ul data-type="taskList">
@@ -838,7 +838,7 @@ test.describe('Task', () => {
 		})
 
 		test('Should use the editor to render description', async ({authenticatedPage: page}) => {
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				description: `
 <h1>Lorem Ipsum</h1>
@@ -862,7 +862,7 @@ test.describe('Task', () => {
 		test('Should render an image from attachment', async ({authenticatedPage: page, apiContext}) => {
 			TaskAttachmentFactory.truncate()
 
-			const tasks = TaskFactory.create(1, {
+			const tasks = await TaskFactory.create(1, {
 				id: 1,
 				description: '',
 			})
@@ -887,7 +887,7 @@ test.describe('Task', () => {
 
 			const {success} = await response.json()
 
-			TaskFactory.create(1, {
+			await TaskFactory.create(1, {
 				id: 1,
 				description: `<img src="${apiUrl}/tasks/${tasks[0].id}/attachments/${success[0].id}" alt="test image">`,
 			})

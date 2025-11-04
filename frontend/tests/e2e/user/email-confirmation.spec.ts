@@ -11,7 +11,7 @@ test.describe('Email Confirmation', () => {
 		TokenFactory.truncate()
 
 		// Create a user with status = 1 (StatusEmailConfirmationRequired)
-		user = UserFactory.create(1, {
+		user = await UserFactory.create(1, {
 			username: 'unconfirmeduser',
 			email: 'unconfirmed@example.com',
 			password: '$2a$14$dcadBoMBL9jQoOcZK8Fju.cy0Ptx2oZECkKLnaa8ekRoTFe1w7To.', // 1234
@@ -21,7 +21,7 @@ test.describe('Email Confirmation', () => {
 		// Create an email confirmation token for this user
 		// kind: 2 = TokenEmailConfirm
 		confirmationToken = 'test-email-confirm-token-12345678901234567890123456789012'
-		TokenFactory.create(1, {
+		await TokenFactory.create(1, {
 			user_id: user.id,
 			kind: 2,
 			token: confirmationToken,

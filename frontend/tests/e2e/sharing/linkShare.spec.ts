@@ -4,13 +4,13 @@ import {TaskFactory} from '../../factories/task'
 import {UserFactory} from '../../factories/user'
 import {createProjects} from '../project/prepareProjects'
 
-function prepareLinkShare() {
-	UserFactory.create()
-	const projects = createProjects()
-	const tasks = TaskFactory.create(10, {
+async function prepareLinkShare() {
+	await UserFactory.create()
+	const projects = await createProjects()
+	const tasks = await TaskFactory.create(10, {
 		project_id: projects[0].id,
 	})
-	const linkShares = LinkShareFactory.create(1, {
+	const linkShares = await LinkShareFactory.create(1, {
 		project_id: projects[0].id,
 		permission: 0,
 	})
@@ -24,7 +24,7 @@ function prepareLinkShare() {
 
 test.describe('Link shares', () => {
 	test('Can view a link share', async ({page}) => {
-		const {share, project, tasks} = prepareLinkShare()
+		const {share, project, tasks} = await prepareLinkShare()
 
 		await page.goto(`/share/${share.hash}/auth`)
 
@@ -36,7 +36,7 @@ test.describe('Link shares', () => {
 	})
 
 	test('Should work when directly viewing a project with share hash present', async ({page}) => {
-		const {share, project, tasks} = prepareLinkShare()
+		const {share, project, tasks} = await prepareLinkShare()
 
 		await page.goto(`/projects/${project.id}/1#share-auth-token=${share.hash}`)
 
@@ -46,7 +46,7 @@ test.describe('Link shares', () => {
 	})
 
 	test('Should work when directly viewing a task with share hash present', async ({page}) => {
-		const {share, project, tasks} = prepareLinkShare()
+		const {share, project, tasks} = await prepareLinkShare()
 
 		await page.goto(`/tasks/${tasks[0].id}#share-auth-token=${share.hash}`)
 

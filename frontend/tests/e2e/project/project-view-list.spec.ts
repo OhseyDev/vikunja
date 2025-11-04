@@ -9,7 +9,7 @@ import {BucketFactory} from '../../factories/bucket'
 
 test.describe('Project View List', () => {
 	test('Should be an empty project', async ({authenticatedPage: page}) => {
-		const projects = ProjectFactory.create(1)
+		const projects = await ProjectFactory.create(1)
 		await page.goto('/projects/1')
 		await expect(page).toHaveURL(/\/projects\/1\/1/)
 		await expect(page.locator('.project-title')).toContainText('First Project')
@@ -18,8 +18,8 @@ test.describe('Project View List', () => {
 	})
 
 	test('Should create a new task', async ({authenticatedPage: page}) => {
-		const projects = ProjectFactory.create(1)
-		BucketFactory.create(2, {
+		const projects = await ProjectFactory.create(1)
+		await BucketFactory.create(2, {
 			project_view_id: 4,
 		})
 
@@ -32,8 +32,8 @@ test.describe('Project View List', () => {
 	})
 
 	test('Should navigate to the task when the title is clicked', async ({authenticatedPage: page}) => {
-		const projects = ProjectFactory.create(1)
-		const tasks = TaskFactory.create(5, {
+		const projects = await ProjectFactory.create(1)
+		const tasks = await TaskFactory.create(5, {
 			id: '{increment}',
 			project_id: 1,
 		})
@@ -45,13 +45,13 @@ test.describe('Project View List', () => {
 	})
 
 	test('Should not see any elements for a project which is shared read only', async ({authenticatedPage: page}) => {
-		UserFactory.create(2)
-		UserProjectFactory.create(1, {
+		await UserFactory.create(2)
+		await UserProjectFactory.create(1, {
 			project_id: 2,
 			user_id: 1,
 			permission: 0,
 		})
-		const projects = ProjectFactory.create(2, {
+		const projects = await ProjectFactory.create(2, {
 			owner_id: '{increment}',
 		})
 		await page.goto(`/projects/${projects[1].id}/`)
@@ -61,10 +61,10 @@ test.describe('Project View List', () => {
 	})
 
 	test('Should only show the color of a project in the navigation and not in the list view', async ({authenticatedPage: page}) => {
-		const projects = ProjectFactory.create(1, {
+		const projects = await ProjectFactory.create(1, {
 			hex_color: '00db60',
 		})
-		TaskFactory.create(10, {
+		await TaskFactory.create(10, {
 			project_id: projects[0].id,
 		})
 		await page.goto(`/projects/${projects[0].id}/`)
@@ -74,8 +74,8 @@ test.describe('Project View List', () => {
 	})
 
 	test('Should paginate for > 50 tasks', async ({authenticatedPage: page}) => {
-		const projects = ProjectFactory.create(1)
-		const tasks = TaskFactory.create(100, {
+		const projects = await ProjectFactory.create(1)
+		const tasks = await TaskFactory.create(100, {
 			id: '{increment}',
 			title: i => `task${i}`,
 			project_id: 1,
@@ -96,12 +96,12 @@ test.describe('Project View List', () => {
 		const projects = createProjects(2)
 
 		const tasks = [
-			TaskFactory.create(1, {
+			await TaskFactory.create(1, {
 				id: 1,
 				title: 'Parent Task in Project A',
 				project_id: projects[0].id,
 			}, false)[0],
-			TaskFactory.create(1, {
+			await TaskFactory.create(1, {
 				id: 2,
 				title: 'Subtask in Project B',
 				project_id: projects[1].id,
@@ -110,13 +110,13 @@ test.describe('Project View List', () => {
 
 		// Make task 2 a subtask of task 1
 		TaskRelationFactory.truncate()
-		TaskRelationFactory.create(1, {
+		await TaskRelationFactory.create(1, {
 			id: 1,
 			task_id: 2,
 			other_task_id: 1,
 			relation_kind: 'subtask',
 		}, false)
-		TaskRelationFactory.create(1, {
+		await TaskRelationFactory.create(1, {
 			id: 2,
 			task_id: 1,
 			other_task_id: 2,
@@ -132,12 +132,12 @@ test.describe('Project View List', () => {
 		const projects = createProjects(1)
 
 		const tasks = [
-			TaskFactory.create(1, {
+			await TaskFactory.create(1, {
 				id: 1,
 				title: 'Parent Task',
 				project_id: projects[0].id,
 			}, false)[0],
-			TaskFactory.create(1, {
+			await TaskFactory.create(1, {
 				id: 2,
 				title: 'Subtask Same Project',
 				project_id: projects[0].id,
@@ -146,13 +146,13 @@ test.describe('Project View List', () => {
 
 		// Make task 2 a subtask of task 1
 		TaskRelationFactory.truncate()
-		TaskRelationFactory.create(1, {
+		await TaskRelationFactory.create(1, {
 			id: 1,
 			task_id: 2,
 			other_task_id: 1,
 			relation_kind: 'subtask',
 		}, false)
-		TaskRelationFactory.create(1, {
+		await TaskRelationFactory.create(1, {
 			id: 2,
 			task_id: 1,
 			other_task_id: 2,

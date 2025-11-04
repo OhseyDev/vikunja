@@ -8,11 +8,11 @@ test.describe('Password Reset', () => {
 	test.beforeEach(async ({page}) => {
 		UserFactory.truncate()
 		TokenFactory.truncate()
-		user = UserFactory.create(1)[0] as UserAttributes
+		user = await UserFactory.create(1)[0] as UserAttributes
 	})
 
 	test('Should allow a user to reset their password with a valid token', async ({page}) => {
-		const tokenArray = TokenFactory.create(1, {user_id: user.id as number, kind: 1})
+		const tokenArray = await TokenFactory.create(1, {user_id: user.id as number, kind: 1})
 		const token: TokenAttributes = tokenArray[0] as TokenAttributes
 
 		await page.goto(`/?userPasswordReset=${token.token}`)

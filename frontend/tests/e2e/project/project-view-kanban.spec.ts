@@ -5,22 +5,22 @@ import {TaskFactory} from '../../factories/task'
 import {ProjectViewFactory} from '../../factories/project_view'
 import {TaskBucketFactory} from '../../factories/task_buckets'
 
-function createSingleTaskInBucket(count = 1, attrs = {}) {
-	const projects = ProjectFactory.create(1)
-	const views = ProjectViewFactory.create(1, {
+async function createSingleTaskInBucket(count = 1, attrs = {}) {
+	const projects = await ProjectFactory.create(1)
+	const views = await ProjectViewFactory.create(1, {
 		id: 1,
 		project_id: projects[0].id,
 		view_kind: 3,
 		bucket_configuration_mode: 1,
 	})
-	const buckets = BucketFactory.create(2, {
+	const buckets = await BucketFactory.create(2, {
 		project_view_id: views[0].id,
 	})
-	const tasks = TaskFactory.create(count, {
+	const tasks = await TaskFactory.create(count, {
 		project_id: projects[0].id,
 		...attrs,
 	})
-	TaskBucketFactory.create(1, {
+	await TaskBucketFactory.create(1, {
 		task_id: tasks[0].id,
 		bucket_id: buckets[0].id,
 		project_view_id: views[0].id,
@@ -32,16 +32,18 @@ function createSingleTaskInBucket(count = 1, attrs = {}) {
 	}
 }
 
-function createTaskWithBuckets(buckets, count = 1) {
-	const data = TaskFactory.create(count, {
+async function createTaskWithBuckets(buckets, count = 1) {
+	const data = await TaskFactory.create(count, {
 		project_id: 1,
 	})
 	TaskBucketFactory.truncate()
-	data.forEach(t => TaskBucketFactory.create(1, {
-		task_id: t.id,
-		bucket_id: buckets[0].id,
-		project_view_id: buckets[0].project_view_id,
-	}, false))
+	for (const t of data) {
+		await TaskBucketFactory.create(1, {
+			task_id: t.id,
+			bucket_id: buckets[0].id,
+			project_view_id: buckets[0].project_view_id,
+		}, false)
+	}
 
 	return data
 }
@@ -50,14 +52,14 @@ test.describe('Project View Kanban', () => {
 	let buckets
 
 	test.beforeEach(async ({authenticatedPage: page}) => {
-		const projects = ProjectFactory.create(1)
-		buckets = BucketFactory.create(2, {
+		const projects = await ProjectFactory.create(1)
+		buckets = await BucketFactory.create(2, {
 			project_view_id: 4,
 		})
 	})
 
 	test('Shows all buckets with their tasks', async ({authenticatedPage: page}) => {
-		const data = createTaskWithBuckets(buckets, 10)
+		const data = await createTaskWithBuckets(buckets, 10)
 		await page.goto('/projects/1/4')
 
 		await expect(page.locator('.kanban .bucket .title').filter({hasText: buckets[0].title})).toBeVisible()
@@ -66,7 +68,7 @@ test.describe('Project View Kanban', () => {
 	})
 
 	test('Can add a new task to a bucket', async ({authenticatedPage: page}) => {
-		createTaskWithBuckets(buckets, 2)
+		await createTaskWithBuckets(buckets, 2)
 		await page.goto('/projects/1/4')
 
 		await page.locator('.kanban .bucket').filter({hasText: buckets[0].title}).locator('.bucket-footer .button').filter({hasText: 'Add another task'}).click()
@@ -119,7 +121,7 @@ test.describe('Project View Kanban', () => {
 	})
 
 	test('Can drag tasks around', async ({authenticatedPage: page}) => {
-		const tasks = createTaskWithBuckets(buckets, 2)
+		const tasks = await createTaskWithBuckets(buckets, 2)
 		await page.goto('/projects/1/4')
 
 		const sourceTask = page.locator('.kanban .bucket .tasks .task').filter({hasText: tasks[0].title}).first()
@@ -131,7 +133,7 @@ test.describe('Project View Kanban', () => {
 	})
 
 	test('Should navigate to the task when the task card is clicked', async ({authenticatedPage: page}) => {
-		const tasks = createTaskWithBuckets(buckets, 5)
+		const tasks = await createTaskWithBuckets(buckets, 5)
 		await page.goto('/projects/1/4')
 
 		await expect(page.locator('.kanban .bucket .tasks .task').filter({hasText: tasks[0].title})).toBeVisible()
@@ -141,18 +143,18 @@ test.describe('Project View Kanban', () => {
 	})
 
 	test('Should remove a task from the kanban board when moving it to another project', async ({authenticatedPage: page}) => {
-		const projects = ProjectFactory.create(2)
-		const views = ProjectViewFactory.create(2, {
+		const projects = await ProjectFactory.create(2)
+		const views = await ProjectViewFactory.create(2, {
 			project_id: '{increment}',
 			view_kind: 3,
 			bucket_configuration_mode: 1,
 		})
-		BucketFactory.create(2)
-		const tasks = TaskFactory.create(5, {
+		await BucketFactory.create(2)
+		const tasks = await TaskFactory.create(5, {
 			id: '{increment}',
 			project_id: 1,
 		})
-		TaskBucketFactory.create(5, {
+		await TaskBucketFactory.create(5, {
 			project_view_id: 1,
 		})
 		const task = tasks[0]

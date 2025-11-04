@@ -29,7 +29,7 @@ test.describe('Log out', () => {
 	})
 
 	test.skip('Should clear the project history after logging the user out', async ({authenticatedPage: page, apiContext}) => {
-		const projects = ProjectFactory.create(1)
+		const projects = await ProjectFactory.create(1)
 		await page.goto(`/projects/${projects[0].id}`)
 
 		// Check that project history exists

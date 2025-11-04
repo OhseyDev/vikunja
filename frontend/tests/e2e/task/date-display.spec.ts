@@ -36,18 +36,18 @@ const expectedFormats = {
 test.describe('Date display setting', () => {
 	Object.entries(expectedFormats).forEach(([format, expected]) => {
 		test(`shows ${format}`, async ({page, apiContext}) => {
-			const user = UserFactory.create(1, {
+			const user = (await UserFactory.create(1, {
 				frontend_settings: JSON.stringify({dateDisplay: format}),
-			})[0]
-			const project = ProjectFactory.create(1, {owner_id: user.id})[0]
+			}))[0]
+			const project = (await ProjectFactory.create(1, {owner_id: user.id}))[0]
 			TaskFactory.truncate()
-			const task = TaskFactory.create(1, {
+			const task = (await TaskFactory.create(1, {
 				id: 1,
 				project_id: project.id,
 				created_by_id: user.id,
 				created: createdDate.toISOString(),
 				updated: createdDate.toISOString(),
-			})[0]
+			}))[0]
 
 			await page.clock.install({time: now})
 			await login(page, apiContext, user)

@@ -7,10 +7,10 @@ import {updateUserSettings} from '../../support/updateUserSettings'
 import {createDefaultViews} from '../project/prepareProjects'
 import type {APIRequestContext} from '@playwright/test'
 
-function seedTasks(apiContext: APIRequestContext, numberOfTasks = 50, startDueDate = new Date()) {
-	const project = ProjectFactory.create()[0]
-	const views = createDefaultViews(project.id)
-	BucketFactory.create(1, {
+async function seedTasks(apiContext: APIRequestContext, numberOfTasks = 50, startDueDate = new Date()) {
+	const project = (await ProjectFactory.create())[0]
+	const views = await createDefaultViews(project.id)
+	await BucketFactory.create(1, {
 		project_view_id: views[3].id,
 	})
 	const tasks = []
@@ -30,14 +30,14 @@ function seedTasks(apiContext: APIRequestContext, numberOfTasks = 50, startDueDa
 			updated: now.toISOString(),
 		})
 	}
-	TaskFactory.seed(TaskFactory.table, tasks)
+	await TaskFactory.seed(TaskFactory.table, tasks)
 	return {tasks, project}
 }
 
 test.describe('Home Page Task Overview', () => {
 	test('Should show tasks with a near due date first on the home page overview', async ({authenticatedPage: page, apiContext}) => {
 		const taskCount = 50
-		const {tasks} = seedTasks(apiContext, taskCount)
+		const {tasks} = await seedTasks(apiContext, taskCount)
 
 		await page.goto('/')
 		const taskElements = await page.locator('[data-cy="showTasks"] .card .task').all()
@@ -51,7 +51,7 @@ test.describe('Home Page Task Overview', () => {
 		const now = new Date()
 		const oldDate = new Date(new Date(now).setDate(now.getDate() - 14))
 		const taskCount = 50
-		const {tasks} = seedTasks(apiContext, taskCount, oldDate)
+		const {tasks} = await seedTasks(apiContext, taskCount, oldDate)
 
 		await page.goto('/')
 		const taskElements = await page.locator('[data-cy="showTasks"] .card .task').all()
@@ -62,12 +62,12 @@ test.describe('Home Page Task Overview', () => {
 	})
 
 	test('Should show a new task with a very soon due date at the top', async ({authenticatedPage: page, apiContext}) => {
-		const {tasks} = seedTasks(apiContext, 49)
+		const {tasks} = await seedTasks(apiContext, 49)
 		const newTaskTitle = 'New Task'
 
 		await page.goto('/')
 
-		TaskFactory.create(1, {
+		await TaskFactory.create(1, {
 			id: 999,
 			title: newTaskTitle,
 			due_date: new Date().toISOString(),
@@ -81,7 +81,7 @@ test.describe('Home Page Task Overview', () => {
 
 	test('Should not show a new task without a date at the bottom when there are > 50 tasks', async ({authenticatedPage: page, apiContext}) => {
 		// We're not using the api here to create the task in order to verify the flow
-		const {tasks} = seedTasks(apiContext, 100)
+		const {tasks} = await seedTasks(apiContext, 100)
 		const newTaskTitle = 'New Task'
 
 		await page.goto('/')
@@ -94,9 +94,9 @@ test.describe('Home Page Task Overview', () => {
 	})
 
 	test('Should show a new task without a date at the bottom when there are < 50 tasks', async ({authenticatedPage: page, apiContext}) => {
-		seedTasks(apiContext, 40)
+		await seedTasks(apiContext, 40)
 		const newTaskTitle = 'New Task'
-		TaskFactory.create(1, {
+		await TaskFactory.create(1, {
 			id: 999,
 			title: newTaskTitle,
 		}, false)
@@ -106,7 +106,7 @@ test.describe('Home Page Task Overview', () => {
 	})
 
 	test('Should show a task without a due date added via default project at the bottom', async ({authenticatedPage: page, apiContext}) => {
-		const {project} = seedTasks(apiContext, 40)
+		const {project} = await seedTasks(apiContext, 40)
 		const token = await page.evaluate(() => localStorage.getItem('token'))
 		await updateUserSettings(apiContext, token, {
 			default_project_id: project.id,
@@ -131,7 +131,7 @@ test.describe('Home Page Task Overview', () => {
 	})
 
 	test('Should not show the cta buttons for new project when there are tasks', async ({authenticatedPage: page, apiContext}) => {
-		seedTasks(apiContext)
+		await seedTasks(apiContext)
 
 		await page.goto('/')
 

@@ -31,7 +31,7 @@ async function login(page) {
 
 test.describe('Login', () => {
 	test.beforeEach(async ({apiContext}) => {
-		UserFactory.create(1, {username: credentials.username})
+		await UserFactory.create(1, {username: credentials.username})
 	})
 
 	test('Should log in with the right credentials', async ({page}) => {
@@ -65,7 +65,7 @@ test.describe('Login', () => {
 	})
 
 	test('Should redirect to the previous route after logging in', async ({page}) => {
-		const projects = ProjectFactory.create(1)
+		const projects = await ProjectFactory.create(1)
 		await page.goto(`/projects/${projects[0].id}/1`)
 
 		await expect(page).toHaveURL(/\/login/)

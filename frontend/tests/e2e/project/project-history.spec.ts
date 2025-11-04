@@ -8,7 +8,7 @@ test.describe('Project History', () => {
 			response.url().includes('/projects') && !response.url().includes('/projects/'),
 		)
 
-		const projects = ProjectFactory.create(7)
+		const projects = await ProjectFactory.create(7)
 		ProjectViewFactory.truncate()
 		projects.forEach(p => ProjectViewFactory.create(1, {
 			id: p.id,

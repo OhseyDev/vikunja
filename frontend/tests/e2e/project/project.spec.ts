@@ -42,7 +42,7 @@ test.describe('Projects', () => {
 	})
 
 	test('Should rename the project in all places', async ({authenticatedPage: page}) => {
-		TaskFactory.create(5, {
+		await TaskFactory.create(5, {
 			id: '{increment}',
 			project_id: 1,
 		})
@@ -92,7 +92,7 @@ test.describe('Projects', () => {
 	})
 
 	test('Should show all projects on the projects page', async ({authenticatedPage: page}) => {
-		const projects = ProjectFactory.create(10)
+		const projects = await ProjectFactory.create(10)
 
 		await page.goto('/projects')
 
@@ -102,10 +102,10 @@ test.describe('Projects', () => {
 	})
 
 	test('Should not show archived projects if the filter is not checked', async ({authenticatedPage: page}) => {
-		ProjectFactory.create(1, {
+		await ProjectFactory.create(1, {
 			id: 2,
 		}, false)
-		ProjectFactory.create(1, {
+		await ProjectFactory.create(1, {
 			id: 3,
 			is_archived: true,
 		}, false)

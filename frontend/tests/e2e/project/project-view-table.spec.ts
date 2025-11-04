@@ -4,8 +4,8 @@ import {ProjectFactory} from '../../factories/project'
 
 test.describe('Project View Table', () => {
 	test('Should show a table with tasks', async ({authenticatedPage: page}) => {
-		const projects = ProjectFactory.create(1)
-		const tasks = TaskFactory.create(1)
+		const projects = await ProjectFactory.create(1)
+		const tasks = await TaskFactory.create(1)
 		await page.goto('/projects/1/3')
 
 		await expect(page.locator('.project-table table.table')).toBeVisible()
@@ -13,8 +13,8 @@ test.describe('Project View Table', () => {
 	})
 
 	test('Should have working column switches', async ({authenticatedPage: page}) => {
-		const projects = ProjectFactory.create(1)
-		TaskFactory.create(1)
+		const projects = await ProjectFactory.create(1)
+		await TaskFactory.create(1)
 		await page.goto('/projects/1/3')
 
 		await page.locator('.project-table .filter-container .button').filter({hasText: 'Columns'}).click()
@@ -26,8 +26,8 @@ test.describe('Project View Table', () => {
 	})
 
 	test('Should navigate to the task when the title is clicked', async ({authenticatedPage: page}) => {
-		const projects = ProjectFactory.create(1)
-		const tasks = TaskFactory.create(5, {
+		const projects = await ProjectFactory.create(1)
+		const tasks = await TaskFactory.create(5, {
 			id: '{increment}',
 			project_id: 1,
 		})
