@@ -10,10 +10,10 @@ test.describe('Project History', () => {
 
 		const projects = await ProjectFactory.create(7)
 		ProjectViewFactory.truncate()
-		projects.forEach(p => ProjectViewFactory.create(1, {
+		await Promise.all(projects.map(p => ProjectViewFactory.create(1, {
 			id: p.id,
 			project_id: p.id,
-		}, false))
+		}, false)))
 
 		await page.goto('/')
 		await loadProjectArrayPromise
@@ -31,6 +31,7 @@ test.describe('Project History', () => {
 		await page.locator('nav.menu.top-menu a').filter({hasText: 'Overview'}).click()
 
 		await expect(page.locator('body')).toContainText('Last viewed')
+		await expect(page.locator('[data-cy="projectCardGrid"]')).toBeVisible()
 		await expect(page.locator('[data-cy="projectCardGrid"]')).not.toContainText(projects[0].title)
 		await expect(page.locator('[data-cy="projectCardGrid"]')).toContainText(projects[1].title)
 		await expect(page.locator('[data-cy="projectCardGrid"]')).toContainText(projects[2].title)

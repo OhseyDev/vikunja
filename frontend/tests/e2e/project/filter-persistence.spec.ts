@@ -6,13 +6,13 @@ import {createProjects} from './prepareProjects'
 async function openAndSetFilters(page) {
 	await page.locator('.filter-container button').filter({hasText: 'Filters'}).click()
 	await expect(page.locator('.filter-popup')).toBeVisible()
-	await page.locator('.filter-popup .filter-input').fill('done = true')
+	await page.locator('.filter-popup .filter-input .ProseMirror').fill('done = true')
 	await page.locator('.filter-popup button').filter({hasText: 'Show results'}).click()
 }
 
 test.describe('Filter Persistence Across Views', () => {
 	test.beforeEach(async ({authenticatedPage: page}) => {
-		createProjects()
+		await createProjects()
 		await TaskFactory.create(5, {
 			id: '{increment}',
 			project_id: 1,
