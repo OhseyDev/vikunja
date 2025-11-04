@@ -87,21 +87,6 @@
         "type": "github"
       }
     },
-    "nixpkgs-playwright": {
-      "locked": {
-        "lastModified": 1753239987,
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "ae1aa6751ce85669124f7ad4fd5fd67cb91b52e4",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "ae1aa6751ce85669124f7ad4fd5fd67cb91b52e4",
-        "type": "github"
-      }
-    },
     "nixpkgs-unstable": {
       "locked": {
         "lastModified": 1761672384,
@@ -122,7 +107,6 @@
         "devenv": "devenv",
         "git-hooks": "git-hooks",
         "nixpkgs": "nixpkgs",
-        "nixpkgs-playwright": "nixpkgs-playwright",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "pre-commit-hooks": [
           "git-hooks"
