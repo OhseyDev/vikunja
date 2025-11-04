@@ -25,7 +25,7 @@ export class Factory {
 	 * @param override
 	 * @returns {[]}
 	 */
-	static create(count = 1, override = {}, truncate = true) {
+	static async create(count = 1, override = {}, truncate = true) {
 		const data = []
 
 		for (let i = 1; i <= count; i++) {
@@ -64,9 +64,9 @@ export class Factory {
 			return flatItem
 		})
 
-		this.seed(this.table, flatData, truncate)
+		await this.seed(this.table, flatData, truncate)
 
-		return data
+		return Promise.resolve(data)
 	}
 
 	static async seed(table: string, data: any, truncate = true) {
@@ -78,12 +78,18 @@ export class Factory {
 			`test/${table}?truncate=${truncate ? 'true' : 'false'}`,
 			{
 				data,
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': process.env.VIKUNJA_SERVICE_TESTINGTOKEN || 'averyLongSecretToSe33dtheDB',
+				},
 			},
 		)
 
 		if (!response.ok()) {
 			throw new Error(`Failed to seed data for table ${table}: ${response.status()} ${response.statusText()}`)
 		}
+
+		return response.json()
 	}
 
 	static async truncate() {

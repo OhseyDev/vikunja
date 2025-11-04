@@ -32,8 +32,9 @@ export async function login(page: Page, apiContext: APIRequestContext, user?: an
 	return user
 }
 
-export function createFakeUser() {
-	return UserFactory.create(1)[0]
+export async function createFakeUser() {
+	const [u] = await UserFactory.create(1)
+	return u
 }
 
 /**

@@ -11,9 +11,6 @@ export const test = base.extend<{
 		const baseURL = process.env.API_URL || 'http://localhost:3456/api/v1/'
 		const apiContext = await playwright.request.newContext({
 			baseURL,
-			extraHTTPHeaders: {
-				'Authorization': process.env.VIKUNJA_SERVICE_TESTINGTOKEN || 'averyLongSecretToSe33dtheDB',
-			},
 		})
 		
 		Factory.setRequestContext(apiContext)
@@ -22,7 +19,7 @@ export const test = base.extend<{
 	},
 
 	currentUser: async ({apiContext}, use) => {
-		const user = createFakeUser()
+		const user = await createFakeUser()
 		await use(user)
 	},
 
