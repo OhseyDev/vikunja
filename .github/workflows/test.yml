@@ -351,6 +351,11 @@ jobs:
     needs:
       - api-build
       - frontend-build
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6]
+        total-shards: [6]
     services:
       dex:
         image: ghcr.io/go-vikunja/dex-testing:main@sha256:d401c06a9f8fd36ece446a07499b827232af7f21eb36872a76c9eac4d0c77bab
@@ -384,7 +389,7 @@ jobs:
           # Wait for services to be ready (using GET method)
           pnpx wait-on http-get://127.0.0.1:4173 http-get://127.0.0.1:3456/api/v1/info --timeout 60000
 
-          pnpm run test:e2e
+          pnpm run test:e2e --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
         env:
           TEST_SECRET: averyLongSecretToSe33dtheDB
           VIKUNJA_SERVICE_TESTINGTOKEN: averyLongSecretToSe33dtheDB
