@@ -1,4 +1,18 @@
 import {defineConfig, devices} from '@playwright/test'
+import {execSync} from 'child_process'
+
+// Find system chromium - for UI mode, set PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH env var
+const getChromiumPath = () => {
+	// Check if env var is already set (for UI mode)
+	if (process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH) {
+		return process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
+	}
+	try {
+		return execSync('which chromium', {encoding: 'utf-8'}).trim()
+	} catch {
+		return undefined
+	}
+}
 
 export default defineConfig({
 	testDir: './tests/e2e',
@@ -12,6 +26,9 @@ export default defineConfig({
 		trace: 'on-first-retry',
 		screenshot: 'only-on-failure',
 		testIdAttribute: 'data-cy', // Preserve existing data-cy selectors
+		launchOptions: {
+			executablePath: getChromiumPath(),
+		},
 	},
 	projects: [
 		{

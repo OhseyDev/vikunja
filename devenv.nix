@@ -2,9 +2,6 @@
 
 let
   pkgs-unstable = import inputs.nixpkgs-unstable { system = pkgs.stdenv.system; };
-  pkgs-playwright = import inputs.nixpkgs-playwright { system = pkgs.stdenv.system; };
-  browsers = (builtins.fromJSON (builtins.readFile "${pkgs-playwright.playwright-driver}/browsers.json")).browsers;
-  chromium-rev = (builtins.head (builtins.filter (x: x.name == "chromium") browsers)).revision;
 in {
   scripts.patch-sass-embedded.exec = ''
   find node_modules/.pnpm/sass-embedded-linux-*/node_modules/sass-embedded-linux-*/dart-sass/src -name dart -print0 | xargs -I {} -0 patchelf --set-interpreter "$(<$NIX_CC/nix-support/dynamic-linker)" {}
@@ -50,33 +47,13 @@ in {
     enable = true;
     package = pkgs-unstable.mailpit;
   };
-  
+
   env = {
-    PLAYWRIGHT_BROWSERS_PATH = "${pkgs-playwright.playwright.browsers}";
-    PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS = true;
-    PLAYWRIGHT_NODEJS_PATH = "${pkgs.nodejs}/bin/node";
-    PLAYWRIGHT_LAUNCH_OPTIONS_EXECUTABLE_PATH = "${pkgs-playwright.playwright.browsers}/chromium-${chromium-rev}/chrome-linux/chrome";
+    PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1";
+    PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS = "1";
+    PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH = "${pkgs-unstable.chromium}/bin/chromium";
     VIKUNJA_SERVICE_TESTINGTOKEN = "test";
   };
-  
-  scripts.playwright-setup-nix.exec = ''
-    playwrightNpmVersion="$(pnpm show @playwright/test version)"
-    echo "❄️ Playwright nix version: ${pkgs-playwright.playwright.version}"
-    echo "📦 Playwright npm version: $playwrightNpmVersion"
-
-    if [ "${pkgs-playwright.playwright.version}" != "$playwrightNpmVersion" ]; then
-        echo "❌ Playwright versions in nix (in devenv.yaml) and npm (in package.json) are not the same! Please adapt the configuration."
-    else
-        echo "✅ Playwright versions in nix and npm are the same"
-    fi
-
-    echo
-    env | grep ^PLAYWRIGHT
-  '';
-
-  enterShell = ''
-    playwright-setup-nix
-  '';
 	
 	devcontainer = {
 		enable = true;
