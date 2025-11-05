@@ -78,7 +78,7 @@ test.describe('Task', () => {
 
 	test.beforeEach(async ({authenticatedPage: page}) => {
 		projects = await ProjectFactory.create(1) as Project[]
-		const views = createDefaultViews(projects[0].id)
+		const views = await createDefaultViews(projects[0].id)
 		buckets = await BucketFactory.create(1, {
 			project_view_id: views[3].id,
 		}) as Bucket[]
@@ -372,7 +372,7 @@ test.describe('Task', () => {
 
 		test('Can move a task to another project', async ({authenticatedPage: page}) => {
 			const projects = await ProjectFactory.create(2)
-			const views = createDefaultViews(projects[0].id)
+			const views = await createDefaultViews(projects[0].id)
 			await BucketFactory.create(2, {
 				project_view_id: views[3].id,
 			})

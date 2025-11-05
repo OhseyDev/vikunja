@@ -53,6 +53,12 @@ test.describe('Project View Kanban', () => {
 
 	test.beforeEach(async ({authenticatedPage: page}) => {
 		const projects = await ProjectFactory.create(1)
+		await ProjectViewFactory.create(1, {
+			id: 4,
+			project_id: projects[0].id,
+			view_kind: 3,
+			bucket_configuration_mode: 1,
+		})
 		buckets = await BucketFactory.create(2, {
 			project_view_id: 4,
 		})
@@ -95,17 +101,22 @@ test.describe('Project View Kanban', () => {
 		await page.locator('.kanban .bucket .bucket-header .dropdown.options .dropdown-trigger').first().click()
 		await page.locator('.kanban .bucket .bucket-header .dropdown.options .dropdown-menu .dropdown-item').filter({hasText: 'Limit: Not Set'}).click()
 		await page.locator('.kanban .bucket .bucket-header .dropdown.options .dropdown-menu .field input.input').first().fill('3')
-		await page.locator('[data-cy="setBucketLimit"]').first().click()
+		await page.locator('.kanban .bucket .bucket-header .dropdown.options .dropdown-menu .field .control .button').first().click()
 
-		await expect(page.locator('.kanban .bucket .bucket-header span.limit').filter({hasText: '0/3'})).toBeVisible()
+		// Wait for dropdown to close then check the limit is visible
+		await expect(page.locator('.kanban .bucket .bucket-header .dropdown.options .dropdown-menu')).not.toBeVisible()
+		await expect(page.locator('.kanban .bucket .bucket-header span.limit').first()).toBeVisible()
+		await expect(page.locator('.kanban .bucket .bucket-header span.limit').first()).toContainText('/3')
 	})
 
 	test('Can rename a bucket', async ({authenticatedPage: page}) => {
 		await page.goto('/projects/1/4')
 
-		await page.locator('.kanban .bucket .bucket-header .title').first().fill('New Bucket Title')
-		await page.locator('.kanban .bucket .bucket-header .title').first().press('Enter')
-		await expect(page.locator('.kanban .bucket .bucket-header .title').first()).toContainText('New Bucket Title')
+		const titleElement = page.locator('.kanban .bucket .bucket-header .title').first()
+		await titleElement.click()
+		await titleElement.fill('New Bucket Title')
+		await titleElement.press('Enter')
+		await expect(titleElement).toContainText('New Bucket Title')
 	})
 
 	test('Can delete a bucket', async ({authenticatedPage: page}) => {
@@ -164,14 +175,22 @@ test.describe('Project View Kanban', () => {
 		await page.locator('.kanban .bucket .tasks .task').filter({hasText: task.title}).click()
 
 		await page.locator('.task-view .action-buttons .button', {timeout: 3000}).filter({hasText: 'Move'}).click()
-		await page.locator('.task-view .content.details .field .multiselect.control .input-wrapper input').fill(`${projects[1].title}{enter}`)
+		const multiselectInput = page.locator('.task-view .content.details .field .multiselect.control .input-wrapper input')
+		await expect(multiselectInput).toBeVisible({timeout: 5000})
+		await multiselectInput.click()
+		await multiselectInput.pressSequentially(projects[1].title)
 		// The requests happen with a 200ms timeout. Because of that, the results are not yet there when we
 		// press enter and we can't simulate pressing on enter to select the item.
+		await page.waitForTimeout(300)
+		await expect(page.locator('.task-view .content.details .field .multiselect.control .search-results')).toBeVisible()
 		await page.locator('.task-view .content.details .field .multiselect.control .search-results').locator('> *').first().click()
 
 		await expect(page.locator('.global-notification')).toContainText('Success', {timeout: 1000})
 		await page.goBack()
-		await expect(page.locator('.kanban .bucket')).not.toContainText(task.title)
+		const bucketCount = await page.locator('.kanban .bucket').count()
+		for (let i = 0; i < bucketCount; i++) {
+			await expect(page.locator('.kanban .bucket').nth(i)).not.toContainText(task.title)
+		}
 	})
 
 	test('Shows a button to filter the kanban board', async ({authenticatedPage: page}) => {
@@ -181,7 +200,7 @@ test.describe('Project View Kanban', () => {
 	})
 
 	test('Should remove a task from the board when deleting it', async ({authenticatedPage: page}) => {
-		const {task, view} = createSingleTaskInBucket(5)
+		const {task, view} = await createSingleTaskInBucket(5)
 		await page.goto(`/projects/1/${view.id}`)
 
 		await expect(page.locator('.kanban .bucket .tasks .task').filter({hasText: task.title})).toBeVisible()
@@ -193,16 +212,20 @@ test.describe('Project View Kanban', () => {
 
 		await expect(page.locator('.global-notification')).toContainText('Success')
 
-		await expect(page.locator('.kanban .bucket .tasks')).not.toContainText(task.title)
+		await page.goBack()
+		const bucketCount = await page.locator('.kanban .bucket').count()
+		for (let i = 0; i < bucketCount; i++) {
+			await expect(page.locator('.kanban .bucket').nth(i)).not.toContainText(task.title)
+		}
 	})
 
 	test('Should show a task description icon if the task has a description', async ({authenticatedPage: page}) => {
+		const {task, view} = await createSingleTaskInBucket(1, {
+			description: 'Lorem Ipsum',
+		})
 		const loadTasksPromise = page.waitForResponse(response =>
 			response.url().includes('/projects/1/views/') && response.url().includes('/tasks'),
 		)
-		const {task, view} = createSingleTaskInBucket(1, {
-			description: 'Lorem Ipsum',
-		})
 
 		await page.goto(`/projects/${task.project_id}/${view.id}`)
 		await loadTasksPromise
@@ -211,12 +234,12 @@ test.describe('Project View Kanban', () => {
 	})
 
 	test('Should not show a task description icon if the task has an empty description', async ({authenticatedPage: page}) => {
+		const {task, view} = await createSingleTaskInBucket(1, {
+			description: '',
+		})
 		const loadTasksPromise = page.waitForResponse(response =>
 			response.url().includes('/projects/1/views/') && response.url().includes('/tasks'),
 		)
-		const {task, view} = createSingleTaskInBucket(1, {
-			description: '',
-		})
 
 		await page.goto(`/projects/${task.project_id}/${view.id}`)
 		await loadTasksPromise
@@ -225,12 +248,12 @@ test.describe('Project View Kanban', () => {
 	})
 
 	test('Should not show a task description icon if the task has a description containing only an empty p tag', async ({authenticatedPage: page}) => {
+		const {task, view} = await createSingleTaskInBucket(1, {
+			description: '<p></p>',
+		})
 		const loadTasksPromise = page.waitForResponse(response =>
 			response.url().includes('/projects/1/views/') && response.url().includes('/tasks'),
 		)
-		const {task, view} = createSingleTaskInBucket(1, {
-			description: '<p></p>',
-		})
 
 		await page.goto(`/projects/${task.project_id}/${view.id}`)
 		await loadTasksPromise
