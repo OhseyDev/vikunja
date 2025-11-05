@@ -9,30 +9,30 @@ import {BucketFactory} from '../../factories/bucket'
 
 test.describe('Project View List', () => {
 	test('Should be an empty project', async ({authenticatedPage: page}) => {
-		const projects = await ProjectFactory.create(1)
+		const projects = await createProjects(1)
 		await page.goto('/projects/1')
 		await expect(page).toHaveURL(/\/projects\/1\/1/)
 		await expect(page.locator('.project-title')).toContainText('First Project')
 		await expect(page.locator('.project-title-dropdown')).toBeVisible()
-		await expect(page.locator('p')).toContainText('This project is currently empty.')
+		await expect(page.locator('.has-text-centered.has-text-grey.is-italic').filter({hasText: 'This project is currently empty.'})).toBeVisible()
 	})
 
 	test('Should create a new task', async ({authenticatedPage: page}) => {
-		const projects = await ProjectFactory.create(1)
+		const projects = await createProjects(1)
 		await BucketFactory.create(2, {
 			project_view_id: 4,
 		})
 
 		const newTaskTitle = 'New task'
 
-		await page.goto('/projects/1')
+		await page.goto('/projects/1/1')
 		await page.locator('.task-add textarea').fill(newTaskTitle)
 		await page.locator('.task-add textarea').press('Enter')
 		await expect(page.locator('.tasks')).toContainText(newTaskTitle)
 	})
 
 	test('Should navigate to the task when the title is clicked', async ({authenticatedPage: page}) => {
-		const projects = await ProjectFactory.create(1)
+		const projects = await createProjects(1)
 		const tasks = await TaskFactory.create(5, {
 			id: '{increment}',
 			project_id: 1,
@@ -61,20 +61,22 @@ test.describe('Project View List', () => {
 	})
 
 	test('Should only show the color of a project in the navigation and not in the list view', async ({authenticatedPage: page}) => {
-		const projects = await ProjectFactory.create(1, {
+		const projects = await createProjects(1)
+		await ProjectFactory.create(1, {
+			id: projects[0].id,
 			hex_color: '00db60',
-		})
+		}, false)
 		await TaskFactory.create(10, {
 			project_id: projects[0].id,
 		})
-		await page.goto(`/projects/${projects[0].id}/`)
+		await page.goto(`/projects/${projects[0].id}/1`)
 
 		await expect(page.locator('.menu-list li .list-menu-link .color-bubble')).toHaveCSS('background-color', 'rgb(0, 219, 96)')
 		await expect(page.locator('.tasks .color-bubble')).not.toBeVisible()
 	})
 
 	test('Should paginate for > 50 tasks', async ({authenticatedPage: page}) => {
-		const projects = await ProjectFactory.create(1)
+		const projects = await createProjects(1)
 		const tasks = await TaskFactory.create(100, {
 			id: '{increment}',
 			title: i => `task${i}`,
@@ -93,7 +95,7 @@ test.describe('Project View List', () => {
 	})
 
 	test('Should show cross-project subtasks in their own project List view', async ({authenticatedPage: page}) => {
-		const projects = createProjects(2)
+		const projects = await createProjects(2)
 
 		const tasks = [
 			await TaskFactory.create(1, {
@@ -129,7 +131,7 @@ test.describe('Project View List', () => {
 	})
 
 	test('Should show same-project subtasks under their parent', async ({authenticatedPage: page}) => {
-		const projects = createProjects(1)
+		const projects = await createProjects(1)
 
 		const tasks = [
 			await TaskFactory.create(1, {

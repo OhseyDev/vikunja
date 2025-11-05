@@ -11,7 +11,7 @@ test.describe('Projects', () => {
 	let projects: any[]
 
 	test.beforeEach(async ({authenticatedPage}) => {
-		projects = createProjects()
+		projects = await createProjects()
 	})
 
 	test('Should create a new project', async ({authenticatedPage: page}) => {
