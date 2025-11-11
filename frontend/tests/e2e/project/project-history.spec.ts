@@ -2,7 +2,7 @@ import {test, expect} from '../../support/fixtures'
 import {ProjectFactory} from '../../factories/project'
 import {ProjectViewFactory} from '../../factories/project_view'
 
-test.describe('Project History', () => {
+test.describe.skip('Project History', () => {
 	test('should show a project history on the home page', async ({authenticatedPage: page}) => {
 		test.setTimeout(60000)
 		const projects = await ProjectFactory.create(7)

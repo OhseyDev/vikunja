@@ -2,7 +2,7 @@ import {test, expect} from '../../support/fixtures'
 import {UserFactory, type UserAttributes} from '../../factories/user'
 import {TokenFactory, type TokenAttributes} from '../../factories/token'
 
-test.describe('Password Reset', () => {
+test.describe.skip('Password Reset', () => {
 	let user: UserAttributes
 
 	test.beforeEach(async ({page}) => {

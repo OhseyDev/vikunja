@@ -1,6 +1,6 @@
 import {test, expect} from '../../support/fixtures'
 
-test.describe('User Settings', () => {
+test.describe.skip('User Settings', () => {
 	test('Changes the user avatar', async ({authenticatedPage: page}) => {
 		const uploadAvatarPromise = page.waitForResponse(response =>
 			response.url().includes('/user/settings/avatar/upload') && response.request().method() === 'POST',

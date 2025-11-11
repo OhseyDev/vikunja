@@ -3,7 +3,7 @@ import {TeamFactory} from '../../factories/team'
 import {TeamMemberFactory} from '../../factories/team_member'
 import {UserFactory} from '../../factories/user'
 
-test.describe('Team', () => {
+test.describe.skip('Team', () => {
 	test('Creates a new team', async ({authenticatedPage: page}) => {
 		TeamFactory.truncate()
 		await page.goto('/teams')

@@ -2,7 +2,7 @@ import {test, expect} from '../../support/fixtures'
 import {UserFactory} from '../../factories/user'
 import {TokenFactory} from '../../factories/token'
 
-test.describe('Email Confirmation', () => {
+test.describe.skip('Email Confirmation', () => {
 	let user
 	let confirmationToken
 

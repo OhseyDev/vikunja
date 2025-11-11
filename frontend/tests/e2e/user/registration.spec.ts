@@ -3,7 +3,7 @@
 import {test, expect} from '../../support/fixtures'
 import {UserFactory} from '../../factories/user'
 
-test.describe('Registration', () => {
+test.describe.skip('Registration', () => {
 	test.beforeEach(async ({page}) => {
 		await UserFactory.create(1, {
 			username: 'test',

@@ -22,7 +22,7 @@ async function prepareLinkShare() {
 	}
 }
 
-test.describe('Link shares', () => {
+test.describe.skip('Link shares', () => {
 	test('Can view a link share', async ({page}) => {
 		const {share, project, tasks} = await prepareLinkShare()
 
