@@ -1,6 +1,6 @@
-import {ProjectFactory} from '../../tests/factories/project'
-import {TaskFactory} from '../../tests/factories/task'
-import {ProjectViewFactory} from "../../tests/factories/project_view";
+import {ProjectFactory} from '../../../tests/factories/project'
+import {TaskFactory} from '../../../tests/factories/task'
+import {ProjectViewFactory} from "../../../tests/factories/project_view";
 
 export function createDefaultViews(projectId: number, startViewId = 1, truncate: boolean = true) {
 	if (truncate) {
