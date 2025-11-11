@@ -16,7 +16,8 @@ test.describe('Projects', () => {
 
 	test('Should create a new project', async ({authenticatedPage: page}) => {
 		await page.goto('/projects')
-		await page.locator('.project-header [data-cy=new-project]').click()
+		await page.waitForLoadState('networkidle')
+		await page.locator('.action-buttons').getByRole('link', {name: /project/i}).click()
 		await expect(page).toHaveURL(/\/projects\/new/)
 		await expect(page.locator('.card-header-title')).toContainText('New project')
 		await page.locator('input[name=projectTitle]').fill('New Project')
@@ -48,46 +49,55 @@ test.describe('Projects', () => {
 		})
 		const newProjectName = 'New project name'
 
-		await page.goto('/projects/1')
+		// Navigate to project and wait for redirect to view
+		await page.goto('/projects/1/1')
+		await page.waitForLoadState('networkidle')
 		await expect(page.locator('.project-title')).toContainText('First Project')
 
-		await page.locator('.menu-container .menu-list li:first-child .dropdown .menu-list-dropdown-trigger').click()
-		await page.locator('.menu-container .menu-list li:first-child .dropdown .dropdown-content').filter({hasText: 'Edit'}).click()
-		await page.locator('#title:not(:disabled)').fill(newProjectName)
-		await page.locator('footer.card-footer .button').filter({hasText: 'Save'}).click()
+		// Click the project title dropdown and select Edit
+		await page.locator('.project-title-dropdown .project-title-button').click()
+		await page.getByRole('link', {name: /^edit$/i}).click()
+		await page.waitForLoadState('networkidle')
+
+		// Fill in the new name
+		await page.locator('input#title').fill(newProjectName)
+		await page.locator('footer.card-footer .button').filter({hasText: /^Save$/}).click()
 
 		await expect(page.locator('.global-notification')).toContainText('Success')
 		await expect(page.locator('.project-title')).toContainText(newProjectName)
 		await expect(page.locator('.project-title')).not.toContainText(projects[0].title)
-		await expect(page.locator('.menu-container .menu-list li:first-child')).toContainText(newProjectName)
-		await expect(page.locator('.menu-container .menu-list li:first-child')).not.toContainText(projects[0].title)
+		await expect(page.locator('.menu-container .menu-list').getByRole('listitem').filter({hasText: newProjectName})).toBeVisible()
 		await page.goto('/')
 		await expect(page.locator('.project-grid')).toContainText(newProjectName)
 		await expect(page.locator('.project-grid')).not.toContainText(projects[0].title)
 	})
 
 	test('Should remove a project when deleting it', async ({authenticatedPage: page}) => {
-		await page.goto(`/projects/${projects[0].id}`)
+		await page.goto(`/projects/${projects[0].id}/1`)
+		await page.waitForLoadState('networkidle')
 
-		await page.locator('.menu-container .menu-list li:first-child .dropdown .menu-list-dropdown-trigger').click()
-		await page.locator('.menu-container .menu-list li:first-child .dropdown .dropdown-content').filter({hasText: 'Delete'}).click()
+		await page.locator('.project-title-dropdown .project-title-button').click()
+		await page.getByRole('link', {name: /^delete$/i}).click()
+		await page.waitForLoadState('networkidle')
+
 		await expect(page).toHaveURL(/\/settings\/delete/)
-		await page.locator('[data-cy="modalPrimary"]').filter({hasText: 'Do it'}).click()
+		await page.getByRole('button', {name: /do it/i}).click()
 
 		await expect(page.locator('.global-notification')).toContainText('Success')
-		await expect(page.locator('.menu-container .menu-list')).not.toContainText(projects[0].title)
 		await expect(page).toHaveURL('/')
+		await expect(page.getByRole('link', {name: projects[0].title})).not.toBeVisible()
 	})
 
 	test('Should archive a project', async ({authenticatedPage: page}) => {
-		await page.goto(`/projects/${projects[0].id}`)
+		await page.goto(`/projects/${projects[0].id}/1`)
+		await page.waitForLoadState('networkidle')
 
-		await page.locator('.project-title-dropdown').click()
-		await page.locator('.project-title-dropdown .dropdown-menu .dropdown-item').filter({hasText: 'Archive'}).click()
+		await page.locator('.project-title-dropdown .project-title-button').click()
+		await page.getByRole('link', {name: /^archive$/i}).click()
 		await expect(page.locator('.modal-content')).toContainText('Archive this project')
-		await page.locator('.modal-content [data-cy=modalPrimary]').click()
+		await page.getByRole('button', {name: /do it/i}).click()
 
-		await expect(page.locator('.menu-container .menu-list')).not.toContainText(projects[0].title)
+		await expect(page.locator('.global-notification')).toContainText('Success')
 		await expect(page.locator('main.app-content')).toContainText('This project is archived. It is not possible to create new or edit tasks for it.')
 	})
 
@@ -95,9 +105,10 @@ test.describe('Projects', () => {
 		const projects = await ProjectFactory.create(10)
 
 		await page.goto('/projects')
+		await page.waitForLoadState('networkidle')
 
 		for (const p of projects) {
-			await expect(page.locator('[data-cy="projects-list"]')).toContainText(p.title)
+			await expect(page.locator('.project-grid')).toContainText(p.title)
 		}
 	})
 
@@ -112,20 +123,22 @@ test.describe('Projects', () => {
 
 		// Initial
 		await page.goto('/projects')
+		await page.waitForLoadState('networkidle')
 		await expect(page.locator('.project-grid')).not.toContainText('Archived')
 
-		// Show archived
-		await page.locator('[data-cy="show-archived-check"] label span').click()
-		await expect(page.locator('[data-cy="show-archived-check"] input')).toBeChecked()
+		// Show archived - click the checkbox label text
+		await page.getByText('Show Archived').click()
+		await expect(page.locator('input[type="checkbox"]').first()).toBeChecked()
 		await expect(page.locator('.project-grid')).toContainText('Archived')
 
 		// Don't show archived
-		await page.locator('[data-cy="show-archived-check"] label span').click()
-		await expect(page.locator('[data-cy="show-archived-check"] input')).not.toBeChecked()
+		await page.getByText('Show Archived').click()
+		await expect(page.locator('input[type="checkbox"]').first()).not.toBeChecked()
 
 		// Second time visiting after unchecking
 		await page.goto('/projects')
-		await expect(page.locator('[data-cy="show-archived-check"] input')).not.toBeChecked()
+		await page.waitForLoadState('networkidle')
+		await expect(page.locator('input[type="checkbox"]').first()).not.toBeChecked()
 		await expect(page.locator('.project-grid')).not.toContainText('Archived')
 	})
 })

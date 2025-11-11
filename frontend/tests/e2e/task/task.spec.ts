@@ -20,7 +20,11 @@ import {TaskBucketFactory} from '../../factories/task_buckets'
 import {pasteFile} from '../../support/commands'
 import type {Page} from '@playwright/test'
 import {readFileSync} from 'fs'
-import {join} from 'path'
+import {join, dirname} from 'path'
+import {fileURLToPath} from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 // Type definitions to fix linting errors
 interface Project {
@@ -272,7 +276,7 @@ test.describe('Task', () => {
 			await expect(page.locator('.task-view .heading .is-done')).toBeVisible()
 			await expect(page.locator('.task-view .heading .is-done')).toContainText('Done')
 			await expect(page.locator('.global-notification')).toContainText('Success')
-			await expect(page.locator('.task-view .action-buttons .button')).toContainText('Mark as undone')
+			await expect(page.locator('.task-view .action-buttons .button').filter({hasText: 'Mark as undone'})).toBeVisible()
 		})
 
 		test('Shows a task identifier since the project has one', async ({authenticatedPage: page}) => {
@@ -382,7 +386,7 @@ test.describe('Task', () => {
 			})
 			await page.goto(`/tasks/${tasks[0].id}`)
 
-			await page.locator('.task-view .action-buttons .button').filter({hasText: 'Move'}).click()
+			await page.locator('.task-view .action-buttons .button').filter({hasText: /^Move$/}).click()
 			await page.locator('.task-view .content.details .field .multiselect.control .input-wrapper input').fill(`${projects[1].title}{enter}`)
 			// The requests happen with a 200ms timeout. Because of that, the results are not yet there when we
 			// press enter and we can't simulate pressing on enter to select the item.
@@ -854,7 +858,7 @@ test.describe('Task', () => {
 			})
 			await page.goto(`/tasks/${tasks[0].id}`)
 
-			await expect(page.locator('.tiptap__editor ul > li input[type=checkbox]')).toBeVisible()
+			await expect(page.locator('.tiptap__editor ul > li input[type=checkbox]').first()).toBeVisible()
 			await expect(page.locator('.tiptap__editor h1').filter({hasText: 'Lorem Ipsum'})).toBeVisible()
 			await expect(page.locator('.tiptap__editor p').filter({hasText: 'Dolor sit amet'})).toBeVisible()
 		})
@@ -870,6 +874,8 @@ test.describe('Task', () => {
 			const filePath = join(__dirname, '../../fixtures/image.jpg')
 			const fileBuffer = readFileSync(filePath)
 
+			// Navigate to a page first to establish context for localStorage access
+			await page.goto('/')
 			const token = await page.evaluate(() => localStorage.getItem('token'))
 
 			const response = await apiContext.put(`tasks/${tasks[0].id}/attachments`, {

@@ -34,6 +34,8 @@ test.describe('Subtask duplicate handling', () => {
 		parentB = (await TaskFactory.create(1, {id: 11, title: 'Parent B', project_id: projectB.id}, false))[0]
 		subtask = (await TaskFactory.create(1, {id: 12, title: 'Shared subtask', project_id: projectA.id}, false))[0]
 
+		// Navigate to a page first to establish context for localStorage access
+		await page.goto('/')
 		const token = await page.evaluate(() => localStorage.getItem('token'))
 
 		await apiContext.put(`tasks/${parentA.id}/relations`, {

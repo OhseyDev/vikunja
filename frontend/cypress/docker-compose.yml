@@ -1,0 +1,15 @@
+services:
+  dex:
+    image: ghcr.io/go-vikunja/dex-testing:main@sha256:d401c06a9f8fd36ece446a07499b827232af7f21eb36872a76c9eac4d0c77bab
+    ports:
+      - 5556:5556
+  cypress:
+    image: cypress/browsers:latest@sha256:368e3002f130d3d68f30b21f61b106f1cf583e9176c9d0ed464e565c31db9bc6
+    volumes:
+      - ..:/project
+      - $HOME/.cache:/home/node/.cache/
+    user: node
+    working_dir: /project
+    environment:
+      CYPRESS_API_URL: http://api:3456/api/v1
+      CYPRESS_TEST_SECRET: averyLongSecretToSe33dtheDB

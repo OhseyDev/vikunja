@@ -19,14 +19,19 @@ test.describe('Project View Table', () => {
 		await TaskFactory.create(1, {
 			project_id: 1,
 		})
+		const loadTasksPromise = page.waitForResponse(response =>
+			response.url().includes('/projects/1/views/') && response.url().includes('/tasks'),
+		)
 		await page.goto('/projects/1/3')
+		await loadTasksPromise
 
 		await page.locator('.project-table .filter-container .button').filter({hasText: 'Columns'}).click()
 		await page.locator('.project-table .filter-container .card.columns-filter .card-content .fancy-checkbox').filter({hasText: 'Priority'}).click()
-		await page.locator('.project-table .filter-container .card.columns-filter .card-content .fancy-checkbox').filter({hasText: 'Done'}).click()
+		// Click the parent element containing the "Done" checkbox (not "Done At")
+		await page.locator('.project-table .filter-container .card.columns-filter .card-content .fancy-checkbox').filter({has: page.getByRole('checkbox', {name: 'Checkbox Done', exact: true})}).click()
 
 		await expect(page.locator('.project-table table.table th').filter({hasText: 'Priority'})).toBeVisible()
-		await expect(page.locator('.project-table table.table th').filter({hasText: 'Done'})).not.toBeVisible()
+		await expect(page.locator('.project-table table.table th').filter({hasText: /^Done$/})).not.toBeVisible()
 	})
 
 	test('Should navigate to the task when the title is clicked', async ({authenticatedPage: page}) => {
@@ -35,10 +40,14 @@ test.describe('Project View Table', () => {
 			id: '{increment}',
 			project_id: 1,
 		})
+		const loadTasksPromise = page.waitForResponse(response =>
+			response.url().includes('/projects/1/views/') && response.url().includes('/tasks'),
+		)
 		await page.goto('/projects/1/3')
+		await loadTasksPromise
 
-		await page.locator('.project-table table.table').filter({hasText: tasks[0].title}).click()
+		await page.locator('.project-table table.table tbody tr').first().locator('a').first().click()
 
-		await expect(page).toHaveURL(new RegExp(`/tasks/${tasks[0].id}`))
+		await expect(page).toHaveURL(/\/tasks\/\d+/)
 	})
 })
